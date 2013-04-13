@@ -208,23 +208,37 @@ class Canvas
     {
       case 'center':
       case 'centre':
-
+        $destination_left = ($this->width - $destination_width) / 2;
         break;
       case 'left':
-
+        $destination_left = 0;
         break;
       case 'right':
-        
+        $destination_left =  $this->width - $destination_width;
         break;
       default:
-        $x = ((int) $options['x'] > 0) ? (int) $options['x'] : 0;
+        $destination_left = ((int) $options['x'] > 0) ? (int) $options['x'] : 0;
     }
-    $y = ((int) $options['y'] > 0) ? (int) $options['y'] : 0;
+
+    switch($options['y'])
+    {
+      case 'middle':
+        $destination_top = ($this->height - $destination_height) / 2;
+        break;
+      case 'top':
+        $destination_top = 0;
+        break;
+      case 'bottom':
+        $destination_top = $this->height - $destination_height;
+        break;
+      default:
+        $destination_top = ((int) $options['y'] > 0) ? (int) $options['y'] : 0;
+    }
 
     imagecopyresized($this->i,
                      $p,
-                     $x, /* dst_x */
-                     $y, /* dst_y */
+                     $destination_left, /* dst_x */
+                     $destination_top, /* dst_y */
                      0, /* src_x */
                      0, /* src_y */
                      $destination_width,
