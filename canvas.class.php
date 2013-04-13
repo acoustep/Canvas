@@ -86,6 +86,21 @@ class Canvas
 		$this->scale = $x;
 		return $this;
 	}
+  public function add(string $type, string $value, array $options)
+  {
+    switch($type)
+    {
+      case 'shape':
+
+        break;
+      case 'image':
+
+        break;
+      case 'text':
+
+        break;
+    }
+  }
 	public function add_shape($options=array())
 	{
 		/* 
