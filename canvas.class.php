@@ -197,7 +197,20 @@ class Canvas
         $destination_width = $image_height * $ratio;
         break;
       case 'best':
-        // TO DO
+        $vertical_space = $this->height - $image_height;
+        $horizontal_space = $this->width - $image_width;
+        if($vertical_space >= $horizontal_space)
+        {
+          $ratio =  $this->height / $image_height;
+          $destination_height = $this->height;
+          $destination_width = $image_width * $ratio;
+        }
+        else
+        {
+          $ratio = $this->width / $image_width; 
+          $destination_width = $this->width;
+          $destination_height = $image_height * $ratio;
+        }
         break;
       default: //none
         $destination_width = $image_width;
