@@ -200,9 +200,4 @@ class Canvas
 
 		return array('red' => $R, 'green' => $G, 'blue' => $B);
 	}
-
-	private function convert_rgb_to_hex($rgb)
-	{
-		// TO DO
-	}
 }
