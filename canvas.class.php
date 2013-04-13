@@ -11,6 +11,8 @@ class Canvas
 	public $type = 'png';
 	public $scale = false;
 	public $shapes = array();
+  public $i;
+  public $layers = array();
 	/**
 	 * Initiate the canvas
 	 * @param integer $width  set the width
@@ -76,32 +78,32 @@ class Canvas
 		$this->type = $x;
 		return $this;
 	}
-	public function image($x)
+	public function image($filename, array $options)
 	{
-		$this->image = $x;
+    // TO DO
+    $this->layers[] = array('type' => 'image',
+                            'value' => $filename,
+                            'options' => $options);
 		return $this;
 	}
-	public function scale($x)
-	{
-		$this->scale = $x;
-		return $this;
-	}
-  public function add(string $type, string $value, array $options)
+	
+  public function add($type, $value, array $options)
   {
     switch($type)
     {
       case 'shape':
-
+          $this->shape($value, $options);
         break;
       case 'image':
-
+        $this->image($value, $options);
         break;
       case 'text':
-
+          // TO DO
         break;
     }
+    return $this;
   }
-	public function add_shape($options=array())
+	public function shape(string $filename, array $options)
 	{
 		/* 
 		 * shape
@@ -112,7 +114,7 @@ class Canvas
 		 * w
 		 * h
 		 */
-		$this->shapes[] = $options;
+		$this->layers[] = $options;
 		return $this;
 	}
 	/**
@@ -121,85 +123,123 @@ class Canvas
 	 */
 	public function create()
 	{
-		$i = null;
-		$i = ImageCreateTrueColor( $this->width, $this->height );
+		$this->i = null;
+		$this->i = ImageCreateTrueColor( $this->width, $this->height );
 		$colour = $this->convert_hex_to_rgb($this->background);
 
-			$background = imagecolorallocate( $i, $colour['red'] , $colour['green'], $colour['blue']);
-		if($this->image)
-		{
-			list($image_width, $image_height, $image_type, $image_attr) = getimagesize($this->image);
-			// echo 'image_width: '.$image_width;
-			// echo 'image_height'.$image_height;
-			// echo 'image type: '.$image_type;
-			// echo 'image_attr: '.$image_attr;
+		$background = imagecolorallocate( $this->i, $colour['red'] , $colour['green'], $colour['blue']);
 
-			switch($image_type)
-			{
-				case 2: //IMAGETYPE_JPEG
-					$p = imagecreatefromjpeg( $this->image );
-					break;
-				case 3: //IMAGETYPE_PNG
-					$p = imagecreatefrompng( $this->image );
-					break;
-				case 1: //IMAGETYPE_GIF
-					$p = imagecreatefromgif( $this->image );
-					break;
-			}
-
-			if($this->scale)
-				imagecopyresized( $i , /* destination image */
-				                  $p , /* src image */
-				                  0 , /* dst_x */
-				                  0 , /* dst_y */
-				                  0 , /* src_x */
-				                  0 , /* src_y */
-				                  $this->width , /* dst_w */
-				                  $this->height , /* dst_h */
-				                  $image_width , /* src_w */
-				                  $image_height ); /* src_h */
-			else
-				imagecopyresized( $i , /* destination image */
-				                  $p , /* src image */
-				                  0 , /* dst_x */
-				                  0 , /* dst_y */
-				                  0 , /* src_x */
-				                  0 , /* src_y */
-				                  $image_width , /* dst_w */
-				                  $image_height , /* dst_h */
-				                  $image_width , /* src_w */
-				                  $image_height ); /* src_h */
-		}
-
-		foreach($this->shapes as $shape)
-		{
-			$shape_colours = $this->convert_hex_to_rgb($shape['color']);
-			// echo 'colour: '.$shape['color'];
-			// var_dump($shape_colours);
-			$shape_colour = imagecolorallocatealpha($i, $shape_colours['red'], $shape_colours['green'], $shape_colours['blue'], $shape['transparency']);
-			
-			imagefilledrectangle($i, $shape['x'], $shape['y'], ($shape['x'] + $shape['w']), ($shape['y'] + $shape['h']), $shape_colour);
+		foreach($this->layers as $layer)
+    {
+      switch($layer['type'])
+      {
+        case 'image':
+          $this->insert_image($layer['value'], $layer['options']);
+          break;
+        case 'text':
+          $this->insert_text($layer['value'], $layer['options']);
+          break;
+        case 'shape':
+          $this->insert_shape($layer['value'], $layer['options']);
+          break;
+      }
 		}
 
 		switch($this->type)
 		{
 			case 'jpg':
 			case 'jpeg':
-				imagejpeg($i,$this->output.'.'.$this->type);
+				imagejpeg($this->i,$this->output.'.'.$this->type);
 				break;
 			case 'png':
-				imagepng($i,$this->output.'.'.$this->type);
+				imagepng($this->i,$this->output.'.'.$this->type);
 				break;
 			case 'gif':
-				imagegif($i,$this->output.'.'.$this->type);
+				imagegif($this->i,$this->output.'.'.$this->type);
 				break;
 		}
 
-		imagedestroy($i);
+		imagedestroy($this->i);
 
 		return $this;
 	}
 
+  private function insert_image($filename, array $options)
+  {
+    $options['x'] = (isset($options['x'])) ? $options['x'] : 0;
+    $options['y'] = (isset($options['y'])) ? $options['y'] : 0;
+    $options['scale'] = (isset($options['scale'])) ? $options['scale'] : false;
+
+    list($image_width, $image_height, $image_type, $image_attr) = getimagesize($filename);
+    switch($image_type)
+    {
+      case 1:
+        $p = imagecreatefromgif($filename);
+        break;
+      case 2:
+        $p = imagecreatefromjpeg($filename);
+        break;
+      case 3:
+        $p = imagecreatefrompng($filename);
+        break;
+    }
+
+    switch($options['scale'])
+    {
+      case 'width':
+        $destination_width = $this->width;
+        $ratio = $this->width / $image_width;
+        $destination_height = $image_height * $ratio;
+        break;
+      case 'height':
+        $destination_height = $this->height;
+        $ratio = $this->height / $image_height;
+        $destination_width = $image_height * $ratio;
+        break;
+      case 'best':
+        // TO DO
+        break;
+      default: //none
+        $destination_width = $image_width;
+        $destination_height = $image_height;
+    }
+
+    switch($options['x'])
+    {
+      case 'center':
+      case 'centre':
+
+        break;
+      case 'left':
+
+        break;
+      case 'right':
+        
+        break;
+      default:
+        $x = ((int) $options['x'] > 0) ? (int) $options['x'] : 0;
+    }
+    $y = ((int) $options['y'] > 0) ? (int) $options['y'] : 0;
+
+    imagecopyresized($this->i,
+                     $p,
+                     $x, /* dst_x */
+                     $y, /* dst_y */
+                     0, /* src_x */
+                     0, /* src_y */
+                     $destination_width,
+                     $destination_height,
+                     $image_width,
+                     $image_height);
+  }
+  private function insert_text($a, $b)
+  {
+    // TO DO
+  }
+  private function insert_shape($a, $b)
+  {
+
+  }
 	private function convert_hex_to_rgb($hex)
 	{
 		if (substr($hex,0,1) == "#")
