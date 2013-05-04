@@ -249,9 +249,6 @@ class Canvas
 		 * w
 		 * h
 		 */
-    switch($shape['value'])
-    {
-      case 'square':
         $shape['color'] = (isset($shape['color'])) ? $shape['color'] : '#ffffff';
         $shape['x'] = ((int) $shape['x'] > 0) ? (int) $shape['x'] : 0;
         $shape['y'] = ((int) $shape['y'] > 0) ? (int) $shape['y'] : 0;
@@ -259,8 +256,42 @@ class Canvas
         $shape['h'] = ((int) $shape['h'] > 0) ? (int) $shape['h'] : 0;
         $shape_colors = $this->convert_hex_to_rgb($shape['color']);
         $shape_color = imagecolorallocatealpha($this->i, $shape_colors['red'], $shape_colors['green'], $shape_colors['blue'], $shape['transparency']);
+
+    if($shape['value'] == 'circle')
+    {
+      $shape['start'] = 0;
+      $shape['end'] = 359;
+    }
+    switch($shape['value'])
+    {
+      case 'square':
+      case 'rectangle':
         imagefilledrectangle($this->i, $shape['x'], $shape['y'], ($shape['x'] + $shape['w']), ($shape['y'] + $shape['h']), $shape_color);
         break;
+      case 'arc':
+          $shape['start'] = ((int) $shape['start'] > 0) ? $shape['start'] : 0;
+          $shape['end'] = ((int) $shape['end'] > 0) ? $shape['end'] : 360;
+          if($shape['outline'])
+            imagefilledarc($this->i, $shape['x'], $shape['y'], $shape['w'], $shape['h'], $shape['start'], $shape['end'], $shape_color, IMG_ARC_PIE|IMG_ARC_NOFILL|IMG_ARC_EDGED);
+          if($shape['fill'])
+            imagefilledarc($this->i, $shape['x'], $shape['y'], $shape['w'], $shape['h'], $shape['start'], $shape['end'], $shape_color, IMG_ARC_PIE);
+          else
+            imagefilledarc($this->i, $shape['x'], $shape['y'], $shape['w'], $shape['h'], $shape['start'], $shape['end'], $shape_color, IMG_ARC_PIE|IMG_ARC_NOFILL);
+
+        break;
+      case 'line':
+        imageline($this->i, $shape['x'], $shape['y'], $shape['w'], $shape['h'], $shape_color);
+        break;
+      case 'polygon':
+        $shape['points'] = (isset($shape['points']) && is_array($shape['points'])) ? $shape['points'] : array(0);
+        imagefilledpolygon($this->i, $shape['points'], count($shape['points']) / 2, $shape_color);
+
+        break;
+      case 'circle':
+      case 'ellipse':
+        imagefilledellipse($this->i, $shape['x'], $shape['y'], $shape['w'], $shape['h'], $shape_color);
+        break;
+
     }
   }
 	private function convert_hex_to_rgb($hex)
