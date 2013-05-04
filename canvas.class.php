@@ -26,33 +26,6 @@ class Canvas
 		return $this;
 	}
 
-	/**
-	 * Set options for the canvas
-	 * @param array $options options to edit
-	 */
-	public function set(array $options)
-	{
-		if(!is_array($options))
-			throw new Exception('Expects an array.');
-
-		if(isset($options['width']))
-		{
-			$this->width($options['width']);
-		}
-
-		if(isset($options['height']))
-		{
-			$this->height($options['height']);
-		}
-
-		if(isset($options['output']))
-		{
-			$this->output($options['output']);
-		}
-
-		return $this;
-	}
-
 	public function width($x)
 	{
 		$this->width = $x;
@@ -103,7 +76,7 @@ class Canvas
     }
     return $this;
   }
-	public function shape(string $filename, array $options)
+	public function shape($shape, array $options)
 	{
 		/* 
 		 * shape
@@ -114,6 +87,8 @@ class Canvas
 		 * w
 		 * h
 		 */
+    $options['type'] = 'shape';
+    $options['value'] = $shape;
 		$this->layers[] = $options;
 		return $this;
 	}
@@ -140,7 +115,7 @@ class Canvas
           $this->insert_text($layer['value'], $layer['options']);
           break;
         case 'shape':
-          $this->insert_shape($layer['value'], $layer['options']);
+          $this->insert_shape($layer);
           break;
       }
 		}
@@ -261,11 +236,32 @@ class Canvas
   }
   private function insert_text($a, $b)
   {
-    // TO DO
-  }
-  private function insert_shape($a, $b)
-  {
 
+  }
+  private function insert_shape($shape)
+  {
+		/* 
+		 * shape
+		 * colour
+		 * transparency
+		 * x
+		 * y
+		 * w
+		 * h
+		 */
+    switch($shape['value'])
+    {
+      case 'square':
+        $shape['color'] = (isset($shape['color'])) ? $shape['color'] : '#ffffff';
+        $shape['x'] = ((int) $shape['x'] > 0) ? (int) $shape['x'] : 0;
+        $shape['y'] = ((int) $shape['y'] > 0) ? (int) $shape['y'] : 0;
+        $shape['w'] = ((int) $shape['w'] > 0) ? (int) $shape['w'] : 0;
+        $shape['h'] = ((int) $shape['h'] > 0) ? (int) $shape['h'] : 0;
+        $shape_colors = $this->convert_hex_to_rgb($shape['color']);
+        $shape_color = imagecolorallocatealpha($this->i, $shape_colors['red'], $shape_colors['green'], $shape_colors['blue'], $shape['transparency']);
+        imagefilledrectangle($this->i, $shape['x'], $shape['y'], ($shape['x'] + $shape['w']), ($shape['y'] + $shape['h']), $shape_color);
+        break;
+    }
   }
 	private function convert_hex_to_rgb($hex)
 	{
