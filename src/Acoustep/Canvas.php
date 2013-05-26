@@ -134,6 +134,7 @@ class Canvas
       default:
         imagepng( $this->image, $this->output );
     }
+    imagedestroy($this->image);
   }
 
   /**
