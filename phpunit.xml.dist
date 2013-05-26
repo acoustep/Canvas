@@ -1,0 +1,8 @@
+<phpunit colors="true"
+         bootstrap="tests/bootstrap.php">
+  <testsuites>
+    <testsuite name="Canvas Test Suite">
+      <directory>tests/Acoustep</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>
