@@ -181,10 +181,8 @@ class Canvas
    */
   private function get_y_offset( $y=0, $destination_width, $destination_height )
   {
-    var_dump($y);
     if($y === 0)
       $y = 'top';
-    var_dump($y);
 
     switch( $y )
     {
@@ -192,7 +190,6 @@ class Canvas
         return 0;
         break;
       case "middle":
-        echo 'test';
         return ( $this->height - $destination_height ) / 2;
         break;
       case "bottom":
