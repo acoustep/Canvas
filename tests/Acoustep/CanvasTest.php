@@ -41,4 +41,15 @@ class CanvasTest extends PHPUnit_Framework_TestCase
     $this->assertEquals(500, $this->canvas->height);
     $this->assertEquals('#ff0000', $this->canvas->background);
   }
+  public function testFileType()
+  {
+    $this->canvas->filetype('png');
+    $this->assertEquals('png', $this->canvas->filetype);
+    $this->canvas->filetype('jpg');
+    $this->assertEquals('jpg', $this->canvas->filetype);
+    $this->canvas->filetype('gif');
+    $this->assertEquals('gif', $this->canvas->filetype);
+    $this->canvas->filetype('jpeg');
+    $this->assertEquals('jpeg', $this->canvas->filetype);
+  }
 }

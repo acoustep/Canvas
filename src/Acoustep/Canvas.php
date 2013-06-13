@@ -81,7 +81,7 @@ class Canvas
    */
   public function filetype( $ext )
   {
-    $this->type = $ext;
+    $this->filetype = $ext;
     return $this;
   }
 
