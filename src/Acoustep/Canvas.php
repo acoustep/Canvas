@@ -157,7 +157,7 @@ class Canvas
 
       $left = $this->get_x_offset( $options['x'], $layer_dimensions[0], $layer_dimensions[1], $layer['options']['x'] );
       $top = $this->get_y_offset( $options['y'], $layer_dimensions[0], $layer_dimensions[1], $layer['options']['y'] );
-      imagecopyresized( $this->image,
+      imagecopyresampled( $this->image,
                         $this->get_file_resource( $layer['file'], $image_type ),
                         $left,
                         $top,
