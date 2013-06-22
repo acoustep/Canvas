@@ -1,5 +1,22 @@
 {
-  "autoload": {
-    "psr-0": {"Acoustep": "src/"}
-  }
+    "name": "acoustep/canvas",
+    "type": "library",
+    "description": "Simple GD Library class for resizing images",
+    "keywords": ["canvas","acoustep", "gd library", "images"],
+    "homepage": "http://github.com/acoustep/canvas",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mitch Stanley",
+            "email": "ubuntumitch@gmail.com",
+            "homepage": "http://mitchs.pw",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "autoload": {
+        "psr-0": {"Acoustep": "src/"}
+    }
 }
